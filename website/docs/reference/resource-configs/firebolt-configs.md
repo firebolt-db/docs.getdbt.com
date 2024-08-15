@@ -207,6 +207,7 @@ For example, a join index could be named `my_users__id__join_1633504263` and an 
 
 More information on using external tables including properly configuring IAM can be found in the Firebolt [documentation](https://docs.firebolt.io/godocs/Guides/loading-data/working-with-external-tables.html).
 
+Firebolt provides the [COPY FROM](https://docs.firebolt.io/godocs/sql_reference/commands/data-management/copy-from.html) command for more efficient data loading into its tables. External tables allow querying data outside of Firebolt without transferring it to internal storage. However, they may not deliver the same performance as data stored within Firebolt. For optimal performance, data should be loaded into a native Firebolt table. The COPY FROM command facilitates this by enabling high-performance bulk loading from external sources directly into Firebolt’s internal storage, ensuring data is fully optimized for speed and efficiency.
 
 #### Installation of external tables package
 
@@ -237,8 +238,59 @@ To use external tables, you must define a table as `external` in your `dbt_proje
 
 In addition to specifying the columns, an external table may specify partitions. Partitions are not columns and they cannot have the same name as columns. To avoid YAML parsing errors, remember to encase string literals (such as the `url` and `object_pattern` values) in single quotation marks.
 
+#### dbt_project.yml syntax
 
-#### dbt_project.yml syntax for an external table
+
+<Tabs
+  groupId="config-dimension"
+  defaultValue="project-yaml"
+  values={[
+    { label: 'Copy strategy', value: 'dbt-project-copy', },
+    { label: 'External table strategy', value: 'dbt-project-external-table', },
+  ]
+}>
+
+
+<TabItem value="dbt-project-copy">
+<File name='dbt_project.yml'>
+
+```yml
+sources:
+  - name: s3
+    tables:
+      - name: <table-name>
+        external:
+          strategy: copy
+          url: 's3://<bucket_name>/'
+          credentials:
+            aws_key_id: <aws-id>
+            aws_secret_key: <aws-secret-key>
+          options:
+            object_pattern: '<regex>'
+            type: '<type>'
+            auto_create: true
+            allow_column_mismatch: false
+            max_errors_per_file: 10
+            csv_options:
+                header: true
+                delimiter: ','
+                quote: DOUBLE_QUOTE
+                escape: '\'
+                null_string: '\\N'
+                empty_field_as_null: true
+                skip_blank_lines: true
+                date_format: 'YYYY-MM-DD'
+                timestamp_format: 'YYYY-MM-DD HH24:MI:SS'
+```
+
+</File>
+
+All parameters under `options` are optional. For detailed descriptions of these options and their allowed values, refer to Firebolt's [parameter specification](https://docs.firebolt.io/godocs/sql_reference/commands/data-management/copy-from.html#parameters).
+
+</TabItem>
+
+<TabItem value="dbt-project-external-table">
+<File name='dbt_project.yml'>
 
 ```yml
 sources:
@@ -265,6 +317,10 @@ sources:
             - name: <column-name>
               data_type: <type>
 ```
+
+</File>
+</TabItem>
+</Tabs>
 
 `aws_key_id` and `aws_secret_key` are the credentails that allow Firebolt access to your S3 bucket. Learn
 how to set them up by following this [guide](https://docs.firebolt.io/godocs/Guides/loading-data/creating-access-keys-aws.html). If your bucket is public these parameters are not necessary.
