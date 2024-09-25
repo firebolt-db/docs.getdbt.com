@@ -207,7 +207,7 @@ For example, a join index could be named `my_users__id__join_1633504263` and an 
 
 More information on using external tables including properly configuring IAM can be found in the Firebolt [documentation](https://docs.firebolt.io/godocs/Guides/loading-data/working-with-external-tables.html).
 
-Firebolt provides the [COPY FROM](https://docs.firebolt.io/godocs/sql_reference/commands/data-management/copy-from.html) command for more efficient data loading into its tables. External tables allow querying data outside of Firebolt without transferring it to internal storage. However, they may not deliver the same performance as data stored within Firebolt. For optimal performance, data should be loaded into a native Firebolt table. The COPY FROM command facilitates this by enabling high-performance bulk loading from external sources directly into Firebolt’s internal storage, ensuring data is fully optimized for speed and efficiency.
+Firebolt provides the [COPY FROM](https://docs.firebolt.io/godocs/sql_reference/commands/data-management/copy-from.html) as an alternative way of data loading, which allows for greater flexibility in terms of what data can be loaded.
 
 #### Installation of external tables package
 
@@ -245,8 +245,8 @@ In addition to specifying the columns, an external table may specify partitions.
   groupId="config-dimension"
   defaultValue="project-yaml"
   values={[
-    { label: 'Copy strategy', value: 'dbt-project-copy', },
     { label: 'External table strategy', value: 'dbt-project-external-table', },
+    { label: 'Copy strategy', value: 'dbt-project-copy', },
   ]
 }>
 
@@ -285,7 +285,7 @@ sources:
 
 </File>
 
-All parameters under `options` are optional. For detailed descriptions of these options and their allowed values, refer to Firebolt's [parameter specification](https://docs.firebolt.io/godocs/sql_reference/commands/data-management/copy-from.html#parameters).
+All parameters under `options` are optional. For detailed descriptions of these options and their allowed values, refer to Firebolt's [parameter specification](https://docs.firebolt.io/sql_reference/commands/data-management/copy-from.html#parameters).
 
 </TabItem>
 
